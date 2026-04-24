@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Resume Toolkit{% endblock %} | Sandeep Mishra</title>
+  <meta name="description" content="{% block meta_desc %}AI-powered Resume Toolkit — Analyze, Score ATS, Edit & Convert your resume for free.{% endblock %}" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            accent: '#6366f1',
+            'accent-light': '#818cf8',
+            'accent-dark': '#4f46e5',
+            surface: '#0f0f1a',
+            'surface-2': '#16162a',
+            'surface-3': '#1e1e35',
+            'surface-4': '#252540',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-out',
+            'slide-up': 'slideUp 0.4s ease-out',
+            'score-fill': 'scoreFill 1.2s ease-out forwards',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite',
+          },
+          keyframes: {
+            fadeIn:    { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+            slideUp:   { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+            scoreFill: { '0%': { 'stroke-dashoffset': '440' }, '100%': {} },
+          },
+        },
+      },
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    /* ── Base ── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a14;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
+    /* ── Background gradient mesh ── */
+    .bg-mesh {
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 10%, rgba(99,102,241,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(139,92,246,0.10) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 60% at 50% 50%, rgba(59,130,246,0.06) 0%, transparent 70%),
+        #0a0a14;
+    }
+
+    /* ── Glass card ── */
+    .glass {
+      background: rgba(22,22,40,0.7);
+      backdrop-filter: blur(16px) saturate(1.4);
+      -webkit-backdrop-filter: blur(16px) saturate(1.4);
+      border: 1px solid rgba(99,102,241,0.18);
+    }
+    .glass-hover {
+      transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+    }
+    .glass-hover:hover {
+      border-color: rgba(99,102,241,0.45);
+      box-shadow: 0 0 28px rgba(99,102,241,0.18);
+      transform: translateY(-2px);
+    }
+
+    /* ── Upload zone ── */
+    .upload-zone {
+      border: 2px dashed rgba(99,102,241,0.4);
+      background: rgba(99,102,241,0.05);
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .upload-zone:hover,
+    .upload-zone.dragover {
+      border-color: #6366f1;
+      background: rgba(99,102,241,0.12);
+    }
+
+    /* ── Score ring ── */
+    .score-ring-track { stroke: rgba(99,102,241,0.15); }
+    .score-ring-fill  {
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    /* ── Progress bar ── */
+    .progress-bar {
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #6366f1, #818cf8);
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ── Keyword chip ── */
+    .chip-green {
+      background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.3);
+      color: #86efac;
+    }
+    .chip-red {
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #fca5a5;
+    }
+    .chip-blue {
+      background: rgba(99,102,241,0.12);
+      border: 1px solid rgba(99,102,241,0.3);
+      color: #a5b4fc;
+    }
+
+    /* ── Textarea / editor ── */
+    .resume-editor {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      background: rgba(10,10,20,0.8);
+      border: 1px solid rgba(99,102,241,0.2);
+      color: #e2e8f0;
+      resize: vertical;
+    }
+    .resume-editor:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      background: rgba(10,10,20,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(99,102,241,0.15);
+    }
+
+    /* ── Gradient text ── */
+    .gradient-text {
+      background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #60a5fa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── Btn primary ── */
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #7c3aed);
+      transition: all 0.2s;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #818cf8, #8b5cf6);
+      box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    /* ── Section badge ── */
+    .section-badge-found    { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+    .section-badge-missing  { background: rgba(239,68,68,0.10);  color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar       { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0f0f1a; }
+    ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 4px; }
+
+    /* ── Tooltip ── */
+    [data-tooltip]:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e1e35;
+      color: #e2e8f0;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+      pointer-events: none;
+      border: 1px solid rgba(99,102,241,0.3);
+      z-index: 50;
+    }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-mesh">
+
+  <!-- ── Navigation ─────────────────────────────────────── -->
+  <nav class="navbar fixed top-0 left-0 right-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- Logo / brand -->
+        <a href="/" class="flex items-center gap-3 group">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg group-hover:shadow-indigo-500/30 transition-shadow">
+            <i class="fas fa-file-alt text-white text-sm"></i>
+          </div>
+          <span class="font-bold text-white">Resume <span class="gradient-text">Toolkit</span></span>
+        </a>
+
+        <!-- Nav links -->
+        <div class="hidden sm:flex items-center gap-1">
+          <a href="{% url 'resume_toolkit:index' %}"
+             class="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all {% if request.resolver_match.url_name == 'index' %}text-white bg-white/5{% endif %}">
+            <i class="fas fa-home mr-1.5 text-indigo-400"></i>Home
+          </a>
+          <a href="{% url 'resume_toolkit:analyze' %}"
+             class="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all {% if request.resolver_match.url_name == 'analyze' %}text-white bg-white/5{% endif %}">
+            <i class="fas fa-chart-bar mr-1.5 text-indigo-400"></i>Analyze
+          </a>
+          <a href="{% url 'resume_toolkit:ats_score' %}"
+             class="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all {% if request.resolver_match.url_name == 'ats_score' %}text-white bg-white/5{% endif %}">
+            <i class="fas fa-bullseye mr-1.5 text-indigo-400"></i>ATS Score
+          </a>
+          <a href="{% url 'resume_toolkit:editor' %}"
+             class="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all {% if request.resolver_match.url_name == 'editor' %}text-white bg-white/5{% endif %}">
+            <i class="fas fa-edit mr-1.5 text-indigo-400"></i>Editor
+          </a>
+          <a href="{% url 'resume_toolkit:converter' %}"
+             class="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all {% if request.resolver_match.url_name == 'converter' %}text-white bg-white/5{% endif %}">
+            <i class="fas fa-exchange-alt mr-1.5 text-indigo-400"></i>Convert
+          </a>
+        </div>
+
+        <!-- Back to portfolio -->
+        <a href="/" class="hidden sm:flex items-center gap-2 text-sm text-slate-400 hover:text-indigo-400 transition-colors">
+          <i class="fas fa-arrow-left text-xs"></i>Portfolio
+        </a>
+
+        <!-- Mobile hamburger (simple) -->
+        <button id="mob-menu-btn" class="sm:hidden text-slate-400 hover:text-white p-2">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mob-menu" class="sm:hidden hidden border-t border-indigo-500/10 bg-[#0a0a14]/95">
+      <div class="px-4 py-3 flex flex-col gap-1">
+        <a href="{% url 'resume_toolkit:index' %}"     class="px-3 py-2 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-white/5"><i class="fas fa-home mr-2 text-indigo-400"></i>Home</a>
+        <a href="{% url 'resume_toolkit:analyze' %}"   class="px-3 py-2 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-white/5"><i class="fas fa-chart-bar mr-2 text-indigo-400"></i>Analyze</a>
+        <a href="{% url 'resume_toolkit:ats_score' %}" class="px-3 py-2 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-white/5"><i class="fas fa-bullseye mr-2 text-indigo-400"></i>ATS Score</a>
+        <a href="{% url 'resume_toolkit:editor' %}"    class="px-3 py-2 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-white/5"><i class="fas fa-edit mr-2 text-indigo-400"></i>Editor</a>
+        <a href="{% url 'resume_toolkit:converter' %}" class="px-3 py-2 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-white/5"><i class="fas fa-exchange-alt mr-2 text-indigo-400"></i>Convert</a>
+        <a href="/"                                    class="px-3 py-2 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-white/5"><i class="fas fa-arrow-left mr-2 text-indigo-400"></i>Back to Portfolio</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Main content ───────────────────────────────────── -->
+  <main class="pt-20 pb-16 min-h-screen">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <!-- ── Footer ─────────────────────────────────────────── -->
+  <footer class="border-t border-indigo-500/10 py-6 text-center text-sm text-slate-500">
+    <p>Resume Toolkit &middot; Built with ❤️ by <a href="/" class="text-indigo-400 hover:text-indigo-300 transition-colors">Sandeep Mishra</a> &middot; All processing is local — your data never leaves the server.</p>
+  </footer>
+
+  <script>
+    // Mobile menu toggle
+    document.getElementById('mob-menu-btn').addEventListener('click', function () {
+      const menu = document.getElementById('mob-menu');
+      menu.classList.toggle('hidden');
+    });
+
+    // Drag-and-drop upload zone (global helper)
+    function initDropZone(zoneId, inputId) {
+      const zone  = document.getElementById(zoneId);
+      const input = document.getElementById(inputId);
+      if (!zone || !input) return;
+
+      zone.addEventListener('click', () => input.click());
+
+      zone.addEventListener('dragover', e => {
+        e.preventDefault();
+        zone.classList.add('dragover');
+      });
+      zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+          input.files = e.dataTransfer.files;
+          updateZoneLabel(zone, e.dataTransfer.files[0].name);
+        }
+      });
+
+      input.addEventListener('change', () => {
+        if (input.files.length) updateZoneLabel(zone, input.files[0].name);
+      });
+    }
+
+    function updateZoneLabel(zone, name) {
+      const label = zone.querySelector('[data-file-label]');
+      if (label) {
+        label.innerHTML = `<i class="fas fa-file-check text-indigo-400 text-2xl mb-2"></i><p class="text-indigo-300 font-medium">${name}</p><p class="text-slate-400 text-xs mt-1">File selected</p>`;
+      }
+    }
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

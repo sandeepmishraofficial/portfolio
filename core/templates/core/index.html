@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sandeep Mishra — Network Engineer</title>
+    <meta name="description" content="{{ personal_info.description }}" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="{% static 'core/style.css' %}" />
+
+    <!-- PWA: Web App Manifest & Mobile Meta -->
+    <link rel="manifest" href="{% static 'core/manifest.json' %}" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Sandeep.io" />
+    <link rel="apple-touch-icon" href="{% static 'core/icons/icon-192x192.png' %}" />
+
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              navy: '#0a1628',
+              navyHover: '#112240',
+              accent: '#2563eb',
+              accentLight: '#3b82f6',
+              accentSoft: '#dbeafe',
+              steel: '#64748b',
+              muted: '#94a3b8',
+            },
+            fontFamily: {
+              sans: ['DM Sans', 'sans-serif'],
+              display: ['Syne', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
+          }
+        }
+      }
+    </script>
+
+    <style>
+      :root {
+        --accent: #2563eb;
+        --accent-light: #3b82f6;
+        --navy: #0a1628;
+        --navy-hover: #112240;
+        --muted: #64748b;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body { font-family: 'DM Sans', sans-serif; }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: #f8fafc; }
+      .dark ::-webkit-scrollbar-track { background: var(--navy); }
+      ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 6px; }
+
+      /* Selection */
+      ::selection { background: var(--accent); color: white; }
+
+      /* Nav glass */
+      .nav-glass {
+        background: rgba(255,255,255,0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(37,99,235,0.08);
+      }
+      .dark .nav-glass {
+        background: rgba(10,22,40,0.85);
+        border-bottom: 1px solid rgba(37,99,235,0.15);
+      }
+
+      /* Grid pattern */
+      .grid-bg {
+        background-image:
+          linear-gradient(rgba(37,99,235,0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(37,99,235,0.04) 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+      .dark .grid-bg {
+        background-image:
+          linear-gradient(rgba(37,99,235,0.07) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(37,99,235,0.07) 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+
+      /* Typed cursor */
+      .typed-cursor { color: var(--accent); }
+
+      /* Tag pill */
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        font-family: 'JetBrains Mono', monospace;
+        background: rgba(37,99,235,0.08);
+        color: var(--accent);
+        border: 1px solid rgba(37,99,235,0.15);
+      }
+      .dark .tag {
+        background: rgba(37,99,235,0.12);
+        border-color: rgba(37,99,235,0.25);
+      }
+
+      /* Skill card */
+      .skill-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.25s ease;
+        cursor: default;
+      }
+      .dark .skill-card {
+        background: var(--navy-hover);
+        border-color: rgba(255,255,255,0.07);
+      }
+      .skill-card:hover {
+        border-color: var(--accent);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(37,99,235,0.12);
+      }
+
+      /* Section heading underline */
+      .section-line {
+        width: 40px;
+        height: 3px;
+        background: var(--accent);
+        border-radius: 2px;
+        margin: 12px 0 0 0;
+      }
+      .section-line.center { margin: 12px auto 0; }
+
+      /* Category btn */
+      .cat-btn {
+        padding: 8px 20px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: 'DM Sans', sans-serif;
+        border: 1.5px solid #e2e8f0;
+        background: white;
+        color: var(--muted);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .dark .cat-btn {
+        background: var(--navy-hover);
+        border-color: rgba(255,255,255,0.08);
+        color: #94a3b8;
+      }
+      .cat-btn.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: white;
+      }
+      .cat-btn:hover:not(.active) {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      /* Project card */
+      .project-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+      }
+      .dark .project-card {
+        background: var(--navy-hover);
+        border-color: rgba(255,255,255,0.07);
+      }
+      .project-card:hover {
+        border-color: rgba(37,99,235,0.3);
+        box-shadow: 0 16px 48px rgba(37,99,235,0.1);
+        transform: translateY(-4px);
+      }
+
+      /* Highlight box */
+      .highlight-box {
+        background: rgba(37,99,235,0.04);
+        border: 1px solid rgba(37,99,235,0.12);
+        border-radius: 10px;
+        padding: 20px;
+      }
+      .dark .highlight-box {
+        background: rgba(37,99,235,0.08);
+        border-color: rgba(37,99,235,0.2);
+      }
+
+      /* Stat box */
+      .stat-box {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 24px;
+        text-align: center;
+        transition: all 0.25s ease;
+      }
+      .dark .stat-box {
+        background: var(--navy-hover);
+        border-color: rgba(255,255,255,0.07);
+      }
+
+      /* About card */
+      .about-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 24px;
+        transition: all 0.25s ease;
+        border-left: 3px solid var(--accent);
+      }
+      .dark .about-card {
+        background: var(--navy-hover);
+        border-color: rgba(255,255,255,0.07);
+        border-left-color: var(--accent);
+      }
+      .about-card:hover {
+        box-shadow: 0 8px 28px rgba(37,99,235,0.1);
+        transform: translateX(4px);
+      }
+
+      /* Input */
+      .form-input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        background: #f8fafc;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 15px;
+        outline: none;
+        transition: border-color 0.2s ease;
+        color: #1e293b;
+      }
+      .dark .form-input {
+        background: var(--navy);
+        border-color: rgba(255,255,255,0.1);
+        color: white;
+      }
+      .form-input:focus { border-color: var(--accent); }
+      .form-input::placeholder { color: #94a3b8; }
+
+      /* Skill category transition */
+      .skill-cat { display: none; }
+      .skill-cat.active { display: block; }
+
+      /* Mobile menu */
+      #mobile-menu {
+        transition: right 0.4s cubic-bezier(0.4,0,0.2,1);
+      }
+
+      /* Fade-up anim */
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(24px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .fade-up { animation: fadeUp 0.6s ease forwards; }
+      .fade-up-1 { animation-delay: 0.1s; opacity: 0; }
+      .fade-up-2 { animation-delay: 0.2s; opacity: 0; }
+      .fade-up-3 { animation-delay: 0.3s; opacity: 0; }
+      .fade-up-4 { animation-delay: 0.4s; opacity: 0; }
+      .fade-up-5 { animation-delay: 0.5s; opacity: 0; }
+
+      /* Dot indicator */
+      .dot-online {
+        width: 10px; height: 10px;
+        background: #22c55e;
+        border-radius: 50%;
+        display: inline-block;
+        box-shadow: 0 0 0 3px rgba(34,197,94,0.2);
+        animation: pulse-dot 2s ease infinite;
+      }
+      @keyframes pulse-dot {
+        0%,100% { box-shadow: 0 0 0 3px rgba(34,197,94,0.2); }
+        50% { box-shadow: 0 0 0 6px rgba(34,197,94,0.1); }
+      }
+
+      /* Mono label */
+      .mono-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-weight: 500;
+      }
+
+      /* Print */
+      @media print { .no-print { display: none !important; } }
+
+      /* Reduced motion */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .hero-title { font-size: 2.4rem !important; }
+      }
+    </style>
+  </head>
+
+  <body class="bg-slate-50 dark:bg-navy text-slate-800 dark:text-slate-100 overflow-x-hidden font-sans">
+
+    <!-- Subtle grid background -->
+    <div class="fixed inset-0 -z-10 grid-bg dark:opacity-100 opacity-100 pointer-events-none"></div>
+    <!-- Soft radial glow -->
+    <div class="fixed top-0 right-0 -z-10 w-[600px] h-[600px] bg-blue-100 dark:bg-blue-950/30 rounded-full blur-3xl opacity-40 dark:opacity-20 pointer-events-none" style="transform:translate(30%,-30%)"></div>
+
+    <!-- ── NAVIGATION ── -->
+    <nav class="nav-glass w-full fixed top-0 left-0 right-0 z-50 px-5 lg:px-[8%] py-0 flex items-center justify-between h-16">
+      <a href="#top" class="font-display text-xl font-bold tracking-tight text-accent">
+        Sandeep<span class="text-slate-400 dark:text-slate-500">.</span>
+      </a>
+
+      <ul class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600 dark:text-slate-300">
+        <li><a href="#top" class="hover:text-accent transition-colors">Home</a></li>
+        <li><a href="/resume-toolkit/" class="text-accent font-semibold hover:text-accentLight transition-colors">Resume Toolkit</a></li>
+        <li><a href="#about" class="hover:text-accent transition-colors">About</a></li>
+        <li><a href="#skills" class="hover:text-accent transition-colors">Skills</a></li>
+        <li><a href="#projects" class="hover:text-accent transition-colors">Projects</a></li>
+        <li><a href="#contact" class="hover:text-accent transition-colors">Contact</a></li>
+      </ul>
+
+      <div class="flex items-center gap-3">
+        <button onclick="toggleTheme()" class="w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 hover:border-accent transition-colors text-slate-500 dark:text-slate-400 hover:text-accent">
+          <i class="fas fa-moon text-sm dark:hidden"></i>
+          <i class="fas fa-sun text-sm hidden dark:block"></i>
+        </button>
+
+        <a href="#contact" class="hidden md:inline-flex items-center gap-2 px-5 py-2 bg-accent text-white rounded-lg text-sm font-semibold hover:bg-accentLight transition-colors">
+          Hire Me
+        </a>
+
+        <button class="block md:hidden" onclick="toggleMenu()">
+          <i class="fas fa-bars text-xl text-slate-600 dark:text-slate-300"></i>
+        </button>
+      </div>
+
+      <!-- Mobile menu -->
+      <div id="mobile-menu" class="fixed top-0 -right-72 w-72 h-screen bg-white dark:bg-navyHover shadow-2xl z-50 flex flex-col pt-20 px-8 gap-5 md:hidden border-l border-slate-100 dark:border-slate-800">
+        <div class="absolute right-5 top-5 cursor-pointer" onclick="toggleMenu()">
+          <i class="fas fa-times text-xl text-slate-500"></i>
+        </div>
+        <a href="#top" onclick="toggleMenu()" class="text-slate-700 dark:text-slate-200 hover:text-accent font-medium transition-colors">Home</a>
+        <a href="/resume-toolkit/" class="text-accent font-bold hover:text-accentLight transition-colors">Resume Toolkit</a>
+        <a href="#about" onclick="toggleMenu()" class="text-slate-700 dark:text-slate-200 hover:text-accent font-medium transition-colors">About</a>
+        <a href="#skills" onclick="toggleMenu()" class="text-slate-700 dark:text-slate-200 hover:text-accent font-medium transition-colors">Skills</a>
+        <a href="#projects" onclick="toggleMenu()" class="text-slate-700 dark:text-slate-200 hover:text-accent font-medium transition-colors">Projects</a>
+        <a href="#contact" onclick="toggleMenu()" class="text-slate-700 dark:text-slate-200 hover:text-accent font-medium transition-colors">Contact</a>
+        <a href="#contact" onclick="toggleMenu()" class="mt-4 px-5 py-2.5 bg-accent text-white rounded-lg text-sm font-semibold text-center">Hire Me</a>
+      </div>
+    </nav>
+
+    <!-- ── HERO ── -->
+    <section id="top" class="min-h-screen flex items-center pt-16 px-5 lg:px-[8%]">
+      <div class="max-w-5xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center py-20">
+
+        <!-- Left: Text -->
+        <div class="space-y-6">
+          <div class="fade-up fade-up-1 flex items-center gap-3">
+            <span class="dot-online"></span>
+            <span class="mono-label">{{ personal_info.status_label }}</span>
+          </div>
+
+          <h1 class="fade-up fade-up-2 font-display text-5xl md:text-6xl font-bold leading-tight hero-title">
+            Hi, I'm<br>
+            <span class="text-accent">{{ personal_info.name.split.0 }}</span><br>
+            <span class="text-slate-500 dark:text-slate-400 text-4xl md:text-5xl font-semibold">
+              <span id="typed-text"></span>
+            </span>
+          </h1>
+
+          <p class="fade-up fade-up-3 text-slate-600 dark:text-slate-400 leading-relaxed text-base max-w-md">
+            {{ personal_info.description }}
+          </p>
+
+          <div class="fade-up fade-up-4 flex flex-wrap gap-3">
+            <a href="#contact" class="px-6 py-3 bg-accent text-white rounded-lg font-semibold text-sm hover:bg-accentLight transition-colors flex items-center gap-2">
+              Get In Touch <i class="fas fa-arrow-right text-xs"></i>
+            </a>
+            <a href="{{ personal_info.cv_link }}" target="_blank" rel="noopener noreferrer"
+               class="px-6 py-3 border border-slate-300 dark:border-slate-600 rounded-lg font-semibold text-sm text-slate-700 dark:text-slate-300 hover:border-accent hover:text-accent transition-colors flex items-center gap-2">
+              Download CV <i class="fas fa-download text-xs"></i>
+            </a>
+          </div>
+
+          <div class="fade-up fade-up-5 flex items-center gap-4">
+            {% if personal_info.linkedin_url %}<a href="{{ personal_info.linkedin_url }}" target="_blank" class="w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-accent hover:border-accent transition-colors text-sm"><i class="fab fa-linkedin"></i></a>{% endif %}
+            {% if personal_info.github_url %}<a href="{{ personal_info.github_url }}" target="_blank" class="w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-accent hover:border-accent transition-colors text-sm"><i class="fab fa-github"></i></a>{% endif %}
+            {% if personal_info.twitter_url %}<a href="{{ personal_info.twitter_url }}" target="_blank" class="w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-accent hover:border-accent transition-colors text-sm"><i class="fab fa-twitter"></i></a>{% endif %}
+            {% if personal_info.instagram_url %}<a href="{{ personal_info.instagram_url }}" target="_blank" class="w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-accent hover:border-accent transition-colors text-sm"><i class="fab fa-instagram"></i></a>{% endif %}
+          </div>
+        </div>
+
+        <!-- Right: Profile card -->
+        <div class="fade-up fade-up-3 flex justify-center md:justify-end">
+          <div class="relative">
+            <!-- Decorative ring -->
+            <div class="absolute inset-0 rounded-2xl border-2 border-accent/20 scale-105"></div>
+            <div class="relative bg-white dark:bg-navyHover border border-slate-200 dark:border-slate-700 rounded-2xl p-6 max-w-xs w-full shadow-lg">
+              <!-- Profile -->
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-accent to-blue-400 flex items-center justify-center text-white text-2xl font-bold font-display shadow-lg uppercase">
+                  {{ personal_info.name.0 }}{{ personal_info.name.split.1.0 }}
+                </div>
+                <div>
+                  <div class="font-display font-bold text-lg">{{ personal_info.name }}</div>
+                  <div class="text-sm text-slate-500 dark:text-slate-400">{{ personal_info.job_title }}</div>
+                  {% if personal_info.open_to_work %}
+                  <div class="flex items-center gap-1.5 mt-1">
+                    <span class="dot-online" style="width:7px;height:7px;"></span>
+                    <span class="text-xs text-green-600 dark:text-green-400 font-medium">Open to work</span>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="space-y-3 mb-6">
+                <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+                  <i class="fas fa-map-marker-alt text-accent w-4"></i>
+                  <span>{{ personal_info.location }}</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+                  <i class="fas fa-graduation-cap text-accent w-4"></i>
+                  <span>{{ personal_info.education_summary }}</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+                  <i class="fas fa-briefcase text-accent w-4"></i>
+                  <span>{{ personal_info.experience_summary }}</span>
+                </div>
+              </div>
+
+              <!-- Quick skills -->
+              <div class="flex flex-wrap gap-2">
+                <span class="tag">Cisco IOS</span>
+                <span class="tag">OSPF</span>
+                <span class="tag">GNS3</span>
+                <span class="tag">Wireshark</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── ABOUT ── -->
+    <section id="about" class="px-5 lg:px-[8%] py-24 scroll-mt-16">
+      <div class="max-w-5xl mx-auto">
+
+        <div class="mb-14">
+          <span class="mono-label">About me</span>
+          <h2 class="font-display text-4xl font-bold mt-2">Who I Am</h2>
+          <div class="section-line"></div>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+
+          <!-- Cards -->
+          <div class="md:col-span-1 space-y-4">
+            {% for card in about_cards %}
+            <div class="about-card" {% if card.border_color_code %}style="border-left-color:{{ card.border_color_code }}"{% endif %}>
+              <div class="w-10 h-10 {{ card.bg_color_class }} rounded-lg flex items-center justify-center mb-4">
+                <i class="{{ card.icon_class }} {{ card.icon_color_class }}"></i>
+              </div>
+              <h3 class="font-display font-bold text-base mb-2">{{ card.title }}</h3>
+              <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                {{ card.description }}
+              </p>
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- Highlights + Stats -->
+          <div class="md:col-span-2 space-y-6">
+            <div class="highlight-box">
+              <h3 class="font-display font-bold text-lg mb-5 flex items-center gap-2">
+                <i class="fas fa-star text-accent text-sm"></i>
+                Professional Highlights
+              </h3>
+              <ul class="space-y-4">
+                {% for hl in highlights %}
+                <li class="flex items-start gap-3 text-sm">
+                  <i class="fas fa-check text-accent mt-0.5 flex-shrink-0"></i>
+                  <span class="text-slate-600 dark:text-slate-400">{{ hl.text }}</span>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4">
+              {% for stat in statistics %}
+              <div class="stat-box">
+                <div class="font-display text-3xl font-bold {{ stat.color_class }} mb-1">{{ stat.value }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">{{ stat.label }}</div>
+              </div>
+              {% endfor %}
+            </div>
+
+            <div class="flex flex-wrap gap-3 text-sm text-slate-600 dark:text-slate-400">
+              <div class="flex items-center gap-2">
+                <i class="fas fa-envelope text-accent text-xs"></i>
+                {{ personal_info.email }}
+              </div>
+              <div class="flex items-center gap-2">
+                <i class="fas fa-phone text-accent text-xs"></i>
+                {{ personal_info.phone }}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SKILLS ── -->
+    <section id="skills" class="px-5 lg:px-[8%] py-24 scroll-mt-16 bg-white/50 dark:bg-navy/50">
+      <div class="max-w-5xl mx-auto">
+
+        <div class="mb-14 text-center">
+          <span class="mono-label">What I work with</span>
+          <h2 class="font-display text-4xl font-bold mt-2">Technical Skills</h2>
+          <div class="section-line center"></div>
+          <p class="text-slate-500 dark:text-slate-400 mt-4 text-sm max-w-xl mx-auto">
+            Core networking tools, protocols, and technologies I use to design, configure, and maintain enterprise networks.
+          </p>
+        </div>
+
+        <!-- Category buttons -->
+        <div class="flex flex-wrap justify-center gap-2 mb-10">
+          {% for cat in skill_categories %}
+          <button class="cat-btn {% if cat.is_active_default %}active{% endif %}" data-cat="{{ cat.data_cat }}">{{ cat.name }}</button>
+          {% endfor %}
+        </div>
+
+        {% for cat in skill_categories %}
+        <div class="skill-cat {% if cat.is_active_default %}active{% endif %}" data-cat="{{ cat.data_cat }}">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {% for skill in cat.skills.all %}
+            <div class="skill-card"><i class="{{ skill.icon_class }} text-3xl {{ skill.icon_color_class }} mb-3"></i><h4 class="font-semibold text-sm mb-1">{{ skill.name }}</h4>{% if skill.level %}<p class="text-xs text-slate-400">{{ skill.level }}</p>{% endif %}</div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+
+      </div>
+    </section>
+
+    <!-- ── PROJECTS ── -->
+    <section id="projects" class="px-5 lg:px-[8%] py-24 scroll-mt-16">
+      <div class="max-w-5xl mx-auto">
+
+        <div class="mb-14">
+          <span class="mono-label">What I've built</span>
+          <h2 class="font-display text-4xl font-bold mt-2">Projects</h2>
+          <div class="section-line"></div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          {% for project in projects %}
+          <div class="project-card group">
+            <div class="h-44 bg-gradient-to-br {{ project.gradient_from }} {{ project.gradient_to }} flex items-center justify-center border-b border-slate-100 dark:border-slate-800 relative overflow-hidden">
+              <div class="absolute inset-0 opacity-10" style="background-image: repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(37,99,235,0.3) 20px, rgba(37,99,235,0.3) 21px), repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(37,99,235,0.3) 20px, rgba(37,99,235,0.3) 21px);"></div>
+              <i class="{{ project.icon_class }} text-7xl {{ project.icon_color_class }} relative z-10"></i>
+            </div>
+            <div class="p-6">
+              {% if not project.duration_text %}
+              <h3 class="font-display font-bold text-lg mb-2">{{ project.title }}</h3>
+              {% else %}
+              <div class="flex items-center gap-2 mb-2">
+                <h3 class="font-display font-bold text-lg">{{ project.title }}</h3>
+              </div>
+              {% endif %}
+              <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                {{ project.description }}
+              </p>
+              <div class="flex flex-wrap gap-2 mb-5">
+                {% for tag in project.tags.all %}
+                <span class="tag">{{ tag.name }}</span>
+                {% endfor %}
+              </div>
+              {% if project.duration_text %}
+              <span class="inline-flex items-center gap-2 text-sm font-semibold text-green-600 dark:text-green-400">
+                <i class="fas fa-calendar-alt"></i> {{ project.duration_text }}
+              </span>
+              {% endif %}
+              {% if project.github_link %}
+              <a href="{{ project.github_link }}" target="_blank" rel="noopener noreferrer"
+                 class="inline-flex items-center gap-2 text-sm font-semibold text-accent hover:underline">
+                <i class="fab fa-github"></i> View on GitHub
+              </a>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CONTACT ── -->
+    <section id="contact" class="px-5 lg:px-[8%] py-24 scroll-mt-16 bg-white/50 dark:bg-navy/50">
+      <div class="max-w-4xl mx-auto">
+
+        <div class="mb-14 text-center">
+          <span class="mono-label">Let's connect</span>
+          <h2 class="font-display text-4xl font-bold mt-2">Get In Touch</h2>
+          <div class="section-line center"></div>
+          <p class="text-slate-500 dark:text-slate-400 mt-4 text-sm max-w-xl mx-auto">
+            Looking for a motivated Network Engineer? I'm open to internships, junior roles, and collaboration. Let's talk.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6 mb-10">
+          <div class="stat-box flex flex-col items-center gap-3">
+            <div class="w-11 h-11 bg-blue-50 dark:bg-blue-950/50 rounded-xl flex items-center justify-center">
+              <i class="fas fa-envelope text-accent"></i>
+            </div>
+            <div class="text-center">
+              <div class="text-xs text-slate-400 mb-1 font-medium uppercase tracking-wide">Email</div>
+              <div class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ personal_info.email }}</div>
+            </div>
+          </div>
+          <div class="stat-box flex flex-col items-center gap-3">
+            <div class="w-11 h-11 bg-indigo-50 dark:bg-indigo-950/50 rounded-xl flex items-center justify-center">
+              <i class="fas fa-phone text-indigo-500"></i>
+            </div>
+            <div class="text-center">
+              <div class="text-xs text-slate-400 mb-1 font-medium uppercase tracking-wide">Phone</div>
+              <div class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ personal_info.phone }}</div>
+            </div>
+          </div>
+          <div class="stat-box flex flex-col items-center gap-3">
+            <div class="w-11 h-11 bg-cyan-50 dark:bg-cyan-950/50 rounded-xl flex items-center justify-center">
+              <i class="fas fa-map-marker-alt text-cyan-500"></i>
+            </div>
+            <div class="text-center">
+              <div class="text-xs text-slate-400 mb-1 font-medium uppercase tracking-wide">Location</div>
+              <div class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ personal_info.location }}</div>
+            </div>
+          </div>
+        </div>
+
+        <form method="post" action="https://api.web3forms.com/submit" class="bg-white dark:bg-navyHover border border-slate-200 dark:border-slate-700/50 rounded-2xl p-8 shadow-sm">
+          <input type="hidden" name="access_key" value="12405dd4-9897-4530-afa1-57671998845b" />
+
+          <div class="grid md:grid-cols-2 gap-5 mb-5">
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Your Name</label>
+              <input type="text" placeholder="John Doe" class="form-input" required name="name" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Email Address</label>
+              <input type="email" placeholder="john@example.com" class="form-input" required name="email" />
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <label class="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Message</label>
+            <textarea rows="5" placeholder="Tell me about the opportunity..." class="form-input resize-none" required name="message"></textarea>
+          </div>
+
+          <button type="submit" class="w-full md:w-auto px-8 py-3 bg-accent hover:bg-accentLight text-white rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-colors mx-auto">
+            <i class="fas fa-paper-plane text-xs"></i> Send Message
+          </button>
+        </form>
+
+      </div>
+    </section>
+
+    <!-- ── FOOTER ── -->
+    <footer class="bg-navy text-slate-400 py-10 px-5 lg:px-[8%]">
+      <div class="max-w-5xl mx-auto">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div>
+            <div class="font-display text-white font-bold text-xl mb-1">Sandeep Mishra</div>
+            <div class="text-sm">{{ personal_info.job_title }} · {{ personal_info.location }}</div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            {% if personal_info.linkedin_url %}<a href="{{ personal_info.linkedin_url }}" target="_blank" class="w-9 h-9 flex items-center justify-center rounded-full border border-slate-700 text-slate-400 hover:text-accent hover:border-accent transition-colors text-sm"><i class="fab fa-linkedin"></i></a>{% endif %}
+            {% if personal_info.github_url %}<a href="{{ personal_info.github_url }}" target="_blank" class="w-9 h-9 flex items-center justify-center rounded-full border border-slate-700 text-slate-400 hover:text-accent hover:border-accent transition-colors text-sm"><i class="fab fa-github"></i></a>{% endif %}
+            {% if personal_info.twitter_url %}<a href="{{ personal_info.twitter_url }}" target="_blank" class="w-9 h-9 flex items-center justify-center rounded-full border border-slate-700 text-slate-400 hover:text-accent hover:border-accent transition-colors text-sm"><i class="fab fa-twitter"></i></a>{% endif %}
+            {% if personal_info.instagram_url %}<a href="{{ personal_info.instagram_url }}" target="_blank" class="w-9 h-9 flex items-center justify-center rounded-full border border-slate-700 text-slate-400 hover:text-accent hover:border-accent transition-colors text-sm"><i class="fab fa-instagram"></i></a>{% endif %}
+          </div>
+
+          <div class="text-sm text-center md:text-right">
+            © 2026 {{ personal_info.name }} · All rights reserved
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+    <script src="{% static 'core/app.js' %}"></script>
+
+    <script>
+      // Typed.js
+      new Typed("#typed-text", {
+        strings: "{{ personal_info.typed_text_strings }}".split(",").map(s => s.trim()),
+        typeSpeed: 80,
+        backSpeed: 40,
+        loop: true,
+      });
+
+      // Theme
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+
+      function toggleTheme() {
+        document.documentElement.classList.toggle('dark');
+        localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+      }
+
+      // Mobile menu
+      function toggleMenu() {
+        const menu = document.getElementById('mobile-menu');
+        const isOpen = menu.style.right === '0px';
+        menu.style.right = isOpen ? '-288px' : '0px';
+        document.body.style.overflow = isOpen ? 'auto' : 'hidden';
+      }
+
+      // Skills category switch
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const cat = btn.dataset.cat;
+          document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.skill-cat').forEach(c => c.classList.remove('active'));
+          btn.classList.add('active');
+          document.querySelector(`.skill-cat[data-cat="${cat}"]`).classList.add('active');
+        });
+      });
+
+      // Smooth scroll
+      document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+          const target = document.querySelector(a.getAttribute('href'));
+          if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        });
+      });
+
+      // ESC closes mobile menu
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { const m = document.getElementById('mobile-menu'); if (m.style.right === '0px') toggleMenu(); }
+      });
+    </script>
+
+    <!-- Copy protection -->
+    <style>* { user-select: none !important; -webkit-user-select: none !important; }</style>
+    <script>
+      document.addEventListener('contextmenu', e => e.preventDefault());
+      document.addEventListener('copy', e => e.preventDefault());
+      document.addEventListener('keydown', e => {
+        if (e.ctrlKey && ['c','a','u','s','p','x'].includes(e.key.toLowerCase())) e.preventDefault();
+      });
+    </script>
+
+    <!-- PWA: Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker
+            .register('/serviceworker.js', { scope: '/' })
+            .then((reg) => console.log('[PWA] Service Worker registered. Scope:', reg.scope))
+            .catch((err) => console.warn('[PWA] Service Worker registration failed:', err));
+        });
+      }
+    </script>
+
+  </body>
+</html>

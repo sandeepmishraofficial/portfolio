@@ -1,0 +1,154 @@
+/* Network Engineer Portfolio — Clean Professional Styles */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --accent: #2563eb;
+  --accent-light: #3b82f6;
+  --navy: #0a1628;
+  --navy-hover: #112240;
+  --muted: #64748b;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f8fafc; }
+.dark ::-webkit-scrollbar-track { background: var(--navy); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 6px; }
+
+/* Smooth Transitions */
+*, *::before, *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+/* Project Items (legacy support) */
+.project-item {
+  opacity: 1;
+  transform: none;
+}
+
+/* Skill Badges (legacy support) */
+.skill-badge {
+  cursor: default;
+  transition: all 0.25s ease;
+}
+
+/* Glow Effects — toned down */
+.glow-text {
+  text-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
+}
+
+/* Glassmorphism */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+.dark .glass-effect {
+  background: rgba(10, 22, 40, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Floating Animation — subtle */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+.animate-float { animation: float 4s ease-in-out infinite; }
+
+/* Fade in */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+
+/* Category button */
+.category-btn {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Skill Category */
+.skill-category { display: none; }
+.skill-category.active { display: block; }
+.skill-category.hidden { display: none; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .project-item {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+/* Dark Mode */
+.dark body {
+  background-color: var(--navy);
+}
+
+/* Print */
+@media print {
+  .no-print { display: none !important; }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High Contrast */
+@media (prefers-contrast: high) {
+  .skill-badge, .project-card {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Custom Selection */
+::selection { background: var(--accent); color: white; }
+::-moz-selection { background: var(--accent); color: white; }
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Card shadow utility */
+.card-shadow {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(37,99,235,0.06);
+}
+.dark .card-shadow {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2), 0 0 0 1px rgba(37,99,235,0.1);
+}
+
+/* Neon border — subdued */
+.neon-border {
+  border: 1.5px solid rgba(37, 99, 235, 0.3);
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.1);
+}
+
+/* Cyber border */
+.cyber-border {
+  border: 1.5px solid rgba(37, 99, 235, 0.2);
+  border-radius: 14px;
+}
+.dark .cyber-border {
+  border-color: rgba(37, 99, 235, 0.25);
+}

@@ -1,0 +1,10 @@
+Django>=5.0.0
+django-unfold
+PyMuPDF
+python-docx
+reportlab
+whitenoise
+gunicorn
+python-dotenv
+django-lifecycle
+# Any other dependencies I can find in the codebase

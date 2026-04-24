@@ -1,0 +1,179 @@
+{% extends "resume_toolkit/base.html" %}
+{% block title %}Resume Converter{% endblock %}
+{% block meta_desc %}Convert your resume between PDF and DOCX formats instantly. No external service — 100% local processing.{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+
+  <!-- Page header -->
+  <div class="text-center mb-10">
+    <div class="inline-flex items-center gap-2 px-3 py-1 glass rounded-full text-xs text-pink-300 mb-4">
+      <i class="fas fa-exchange-alt text-pink-400"></i> Resume Converter
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-3">Convert Your Resume</h1>
+    <p class="text-slate-400 max-w-xl mx-auto text-sm leading-relaxed">
+      Upload a PDF to get a DOCX, or upload a DOCX to get a PDF. Auto-detected. Downloaded instantly.
+    </p>
+  </div>
+
+  {% if error %}
+  <div class="glass rounded-xl p-4 mb-8 border border-red-500/30 bg-red-500/5 flex items-start gap-3">
+    <i class="fas fa-exclamation-circle text-red-400 mt-0.5"></i>
+    <div>
+      <p class="text-red-300 font-medium text-sm">Conversion Failed</p>
+      <p class="text-red-400/80 text-xs mt-1">{{ error }}</p>
+      <p class="text-slate-500 text-xs mt-2">Make sure all required libraries are installed: <code class="bg-white/10 px-1 rounded">pip install PyMuPDF python-docx reportlab</code></p>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Format toggle visual -->
+  <div class="max-w-2xl mx-auto mb-8">
+    <div class="glass rounded-2xl p-5">
+      <div class="flex items-center justify-center gap-6">
+
+        <!-- PDF format -->
+        <div class="flex flex-col items-center gap-2" id="fmt-from">
+          <div class="w-16 h-16 rounded-xl flex items-center justify-center" style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3);">
+            <i class="fas fa-file-pdf text-red-400 text-2xl"></i>
+          </div>
+          <span class="text-xs font-semibold text-slate-300">PDF</span>
+        </div>
+
+        <!-- Arrow -->
+        <div class="flex flex-col items-center gap-1">
+          <div class="flex items-center gap-2 text-slate-500">
+            <div class="h-px w-12 bg-gradient-to-r from-transparent to-indigo-500/50"></div>
+            <div class="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center" id="arrow-icon">
+              <i class="fas fa-exchange-alt text-indigo-400 text-xs"></i>
+            </div>
+            <div class="h-px w-12 bg-gradient-to-l from-transparent to-indigo-500/50"></div>
+          </div>
+          <span class="text-xs text-slate-500">auto-detect</span>
+        </div>
+
+        <!-- DOCX format -->
+        <div class="flex flex-col items-center gap-2">
+          <div class="w-16 h-16 rounded-xl flex items-center justify-center" style="background: rgba(37,99,235,0.15); border: 1px solid rgba(37,99,235,0.3);">
+            <i class="fas fa-file-word text-blue-400 text-2xl"></i>
+          </div>
+          <span class="text-xs font-semibold text-slate-300">DOCX</span>
+        </div>
+
+      </div>
+      <p class="text-center text-xs text-slate-500 mt-4">
+        Upload any file → we auto-detect the format and convert to the opposite
+      </p>
+    </div>
+  </div>
+
+  <!-- Upload form -->
+  <div class="max-w-xl mx-auto">
+    <form method="post" enctype="multipart/form-data" id="converter-form">
+      {% csrf_token %}
+      <div class="glass rounded-2xl p-8">
+
+        <!-- Drop zone -->
+        <div id="upload-zone" class="upload-zone rounded-xl p-12 text-center mb-6" id="drop-zone">
+          <div data-file-label>
+            <i class="fas fa-file-import text-pink-400 text-4xl mb-4"></i>
+            <p class="text-white font-medium mb-1">Drop your PDF or DOCX here</p>
+            <p class="text-slate-400 text-sm">or click to browse</p>
+            <p class="text-slate-500 text-xs mt-3">Max 20 MB</p>
+          </div>
+          <input type="file" id="resume-input" name="resume" accept=".pdf,.docx" class="hidden" />
+        </div>
+
+        <!-- File format indicator (shown after selection) -->
+        <div id="format-indicator" class="hidden mb-5 flex items-center justify-center gap-4">
+          <div class="flex items-center gap-2 px-4 py-2 rounded-lg" id="from-badge">
+            <!-- filled dynamically -->
+          </div>
+          <i class="fas fa-long-arrow-alt-right text-indigo-400"></i>
+          <div class="flex items-center gap-2 px-4 py-2 rounded-lg" id="to-badge">
+            <!-- filled dynamically -->
+          </div>
+        </div>
+
+        <button type="submit" id="convert-btn"
+                class="w-full py-3 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2"
+                style="background: linear-gradient(135deg, #db2777, #be185d); transition: all 0.2s;">
+          <i class="fas fa-exchange-alt"></i> Convert &amp; Download
+        </button>
+
+        <p class="text-center text-xs text-slate-500 mt-4">
+          <i class="fas fa-lock text-indigo-400 mr-1"></i>
+          Your file is processed locally and never stored permanently.
+        </p>
+      </div>
+    </form>
+  </div>
+
+  <!-- Info cards -->
+  <div class="max-w-2xl mx-auto mt-10 grid grid-cols-1 sm:grid-cols-2 gap-5">
+    <div class="glass rounded-xl p-5">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-9 h-9 rounded-lg bg-red-500/15 border border-red-500/25 flex items-center justify-center">
+          <i class="fas fa-file-pdf text-red-400"></i>
+        </div>
+        <span class="text-sm font-semibold text-white">PDF → DOCX</span>
+      </div>
+      <p class="text-xs text-slate-400 leading-relaxed">
+        Extracts text content from your PDF and creates an editable Word document. Useful for editing a resume you only have as a PDF.
+      </p>
+    </div>
+    <div class="glass rounded-xl p-5">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-9 h-9 rounded-lg bg-blue-500/15 border border-blue-500/25 flex items-center justify-center">
+          <i class="fas fa-file-word text-blue-400"></i>
+        </div>
+        <span class="text-sm font-semibold text-white">DOCX → PDF</span>
+      </div>
+      <p class="text-xs text-slate-400 leading-relaxed">
+        Converts your Word document to a clean, submission-ready PDF. Great for sending to job applications that require PDF format.
+      </p>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  initDropZone('upload-zone', 'resume-input');
+
+  const fileInput = document.getElementById('resume-input');
+  if (fileInput) {
+    fileInput.addEventListener('change', function() {
+      if (!this.files.length) return;
+      const name = this.files[0].name.toLowerCase();
+      const indicator = document.getElementById('format-indicator');
+      const fromBadge = document.getElementById('from-badge');
+      const toBadge   = document.getElementById('to-badge');
+
+      if (name.endsWith('.pdf')) {
+        fromBadge.innerHTML = '<i class="fas fa-file-pdf text-red-400 text-sm"></i><span class="text-xs font-medium text-red-300">PDF</span>';
+        fromBadge.className = 'flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/25';
+        toBadge.innerHTML   = '<i class="fas fa-file-word text-blue-400 text-sm"></i><span class="text-xs font-medium text-blue-300">DOCX</span>';
+        toBadge.className   = 'flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/25';
+      } else if (name.endsWith('.docx')) {
+        fromBadge.innerHTML = '<i class="fas fa-file-word text-blue-400 text-sm"></i><span class="text-xs font-medium text-blue-300">DOCX</span>';
+        fromBadge.className = 'flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/25';
+        toBadge.innerHTML   = '<i class="fas fa-file-pdf text-red-400 text-sm"></i><span class="text-xs font-medium text-red-300">PDF</span>';
+        toBadge.className   = 'flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/25';
+      }
+
+      if (indicator) indicator.classList.remove('hidden');
+    });
+  }
+
+  // Loading state on convert
+  document.getElementById('converter-form')?.addEventListener('submit', function() {
+    const btn = document.getElementById('convert-btn');
+    if (btn) {
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Converting...';
+      btn.disabled = true;
+    }
+  });
+</script>
+{% endblock %}

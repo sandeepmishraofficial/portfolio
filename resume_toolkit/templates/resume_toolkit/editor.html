@@ -1,0 +1,282 @@
+{% extends "resume_toolkit/base.html" %}
+{% block title %}Resume Editor{% endblock %}
+{% block meta_desc %}Edit your resume directly in the browser. Upload PDF or DOCX, make changes, and download as DOCX or TXT.{% endblock %}
+
+{% block extra_head %}
+<style>
+  .editor-wrapper {
+    position: relative;
+  }
+  .editor-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    background: rgba(10,10,20,0.9);
+    border: 1px solid rgba(99,102,241,0.2);
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+  }
+  .toolbar-btn {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid rgba(99,102,241,0.2);
+    background: rgba(99,102,241,0.1);
+    color: #a5b4fc;
+    transition: all 0.15s;
+  }
+  .toolbar-btn:hover {
+    background: rgba(99,102,241,0.25);
+    border-color: rgba(99,102,241,0.5);
+  }
+  #resume-textarea {
+    border-radius: 0 0 12px 12px;
+    min-height: 520px;
+  }
+  .word-counter {
+    position: absolute;
+    bottom: 12px;
+    right: 16px;
+    font-size: 11px;
+    color: #64748b;
+    pointer-events: none;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+
+  <!-- Page header -->
+  <div class="text-center mb-10">
+    <div class="inline-flex items-center gap-2 px-3 py-1 glass rounded-full text-xs text-amber-300 mb-4">
+      <i class="fas fa-edit text-amber-400"></i> Resume Editor
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-3">Edit Your Resume</h1>
+    <p class="text-slate-400 max-w-xl mx-auto text-sm leading-relaxed">
+      Upload your resume — we'll extract the text so you can edit it directly in the browser. Download as DOCX or TXT when done.
+    </p>
+  </div>
+
+  {% if error %}
+  <div class="glass rounded-xl p-4 mb-8 border border-red-500/30 bg-red-500/5 flex items-start gap-3">
+    <i class="fas fa-exclamation-circle text-red-400 mt-0.5"></i>
+    <div>
+      <p class="text-red-300 font-medium text-sm">Error</p>
+      <p class="text-red-400/80 text-xs mt-1">{{ error }}</p>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if not editing %}
+  <!-- ── Upload form ───────────────────────────────── -->
+  <div class="max-w-xl mx-auto">
+    <form method="post" enctype="multipart/form-data" id="editor-upload-form">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="upload">
+      <div class="glass rounded-2xl p-8">
+        <div id="upload-zone" class="upload-zone rounded-xl p-10 text-center mb-6">
+          <div data-file-label>
+            <i class="fas fa-file-import text-amber-400 text-4xl mb-3"></i>
+            <p class="text-white font-medium mb-1">Drop your resume here</p>
+            <p class="text-slate-400 text-sm">or click to browse</p>
+            <p class="text-slate-500 text-xs mt-3">Supports PDF &amp; DOCX</p>
+          </div>
+          <input type="file" id="resume-input" name="resume" accept=".pdf,.docx" class="hidden" />
+        </div>
+        <button type="submit" id="upload-btn"
+                class="w-full py-3 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all"
+                style="background: linear-gradient(135deg, #d97706, #b45309);">
+          <i class="fas fa-magic"></i> Extract &amp; Open Editor
+        </button>
+      </div>
+    </form>
+  </div>
+
+  {% else %}
+  <!-- ══ EDITOR MODE ══════════════════════════════════════════════════════ -->
+  <div class="animate-slide-up">
+
+    <!-- Top info bar -->
+    <div class="flex items-center justify-between mb-6 glass rounded-xl px-5 py-3">
+      <div class="flex items-center gap-3">
+        <i class="fas fa-file-alt text-amber-400"></i>
+        <span class="text-white text-sm font-medium">{{ filename }}</span>
+        <span class="text-xs text-slate-500 bg-white/5 px-2 py-0.5 rounded-full">Editing</span>
+      </div>
+      <a href="{% url 'resume_toolkit:editor' %}" class="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-colors">
+        <i class="fas fa-redo"></i> Upload another
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+      <!-- ── Editor (3/4 width) ── -->
+      <div class="lg:col-span-3">
+        <div class="editor-wrapper">
+          <!-- Toolbar -->
+          <div class="editor-toolbar">
+            <span class="text-xs text-slate-500 font-medium mr-2">Tools:</span>
+            <button type="button" class="toolbar-btn" onclick="wrapSelection('• ', '')">
+              <i class="fas fa-list-ul mr-1"></i>Bullet
+            </button>
+            <button type="button" class="toolbar-btn" onclick="wrapSelection('', '\n')">
+              <i class="fas fa-paragraph mr-1"></i>Newline
+            </button>
+            <button type="button" class="toolbar-btn" onclick="insertSectionHeader()">
+              <i class="fas fa-heading mr-1"></i>Section
+            </button>
+            <button type="button" class="toolbar-btn" onclick="clearEditor()">
+              <i class="fas fa-eraser mr-1"></i>Clear
+            </button>
+            <div class="ml-auto flex items-center gap-1 text-xs text-slate-500">
+              <i class="fas fa-keyboard text-xs"></i>
+              <span id="char-count">0</span> chars
+            </div>
+          </div>
+
+          <!-- Textarea editor -->
+          <textarea id="resume-textarea"
+                    class="resume-editor w-full px-5 py-4 text-sm"
+                    spellcheck="true"
+                    autocomplete="off">{{ resume_text }}</textarea>
+          <div class="word-counter" id="word-counter">0 words</div>
+        </div>
+      </div>
+
+      <!-- ── Sidebar: download options ── -->
+      <div class="lg:col-span-1 flex flex-col gap-4">
+
+        <div class="glass rounded-2xl p-5">
+          <h3 class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+            <i class="fas fa-download text-amber-400"></i> Download
+          </h3>
+
+          <!-- Download as DOCX -->
+          <form method="post" id="download-docx-form" class="mb-3">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="download">
+            <input type="hidden" name="format" value="docx">
+            <textarea name="content" id="docx-content-mirror" class="hidden">{{ resume_text }}</textarea>
+            <button type="submit" onclick="syncContent('docx-content-mirror')"
+                    class="w-full py-2.5 rounded-xl text-white text-sm font-medium flex items-center justify-center gap-2 transition-all"
+                    style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+              <i class="fas fa-file-word"></i> Download DOCX
+            </button>
+          </form>
+
+          <!-- Download as TXT -->
+          <form method="post" id="download-txt-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="download">
+            <input type="hidden" name="format" value="txt">
+            <textarea name="content" id="txt-content-mirror" class="hidden">{{ resume_text }}</textarea>
+            <button type="submit" onclick="syncContent('txt-content-mirror')"
+                    class="w-full py-2.5 rounded-xl text-slate-200 text-sm font-medium flex items-center justify-center gap-2 glass border border-white/10 hover:border-indigo-400/50 transition-colors">
+              <i class="fas fa-file-alt"></i> Download TXT
+            </button>
+          </form>
+        </div>
+
+        <!-- Tips card -->
+        <div class="glass rounded-2xl p-5">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <i class="fas fa-lightbulb text-amber-400"></i> Editor Tips
+          </h3>
+          <ul class="flex flex-col gap-2 text-xs text-slate-400">
+            <li class="flex items-start gap-1.5"><i class="fas fa-circle text-[6px] text-amber-400 mt-1.5"></i>Use "Bullet" button to add bullet points</li>
+            <li class="flex items-start gap-1.5"><i class="fas fa-circle text-[6px] text-amber-400 mt-1.5"></i>Use "Section" to add a new section header</li>
+            <li class="flex items-start gap-1.5"><i class="fas fa-circle text-[6px] text-amber-400 mt-1.5"></i>Aim for 350–700 words for best results</li>
+            <li class="flex items-start gap-1.5"><i class="fas fa-circle text-[6px] text-amber-400 mt-1.5"></i>Quantify achievements: "Increased X by 40%"</li>
+            <li class="flex items-start gap-1.5"><i class="fas fa-circle text-[6px] text-amber-400 mt-1.5"></i>Mirror keywords from job descriptions</li>
+          </ul>
+        </div>
+
+        <!-- Navigate to ATS -->
+        <a href="{% url 'resume_toolkit:ats_score' %}"
+           class="glass rounded-2xl p-4 border border-emerald-500/20 hover:border-emerald-500/40 transition-colors flex items-center gap-3 group">
+          <div class="w-9 h-9 rounded-lg bg-emerald-500/15 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+            <i class="fas fa-bullseye text-emerald-400 text-sm"></i>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-white">Check ATS Score</div>
+            <div class="text-xs text-slate-500">Match vs job description</div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  initDropZone('upload-zone', 'resume-input');
+
+  const textarea    = document.getElementById('resume-textarea');
+  const charCount   = document.getElementById('char-count');
+  const wordCounter = document.getElementById('word-counter');
+
+  function updateCounters() {
+    if (!textarea) return;
+    const text  = textarea.value;
+    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    if (charCount)   charCount.textContent   = text.length.toLocaleString();
+    if (wordCounter) wordCounter.textContent = words.toLocaleString() + ' words';
+  }
+
+  if (textarea) {
+    textarea.addEventListener('input', updateCounters);
+    updateCounters();
+  }
+
+  function syncContent(mirrorId) {
+    const mirror = document.getElementById(mirrorId);
+    if (mirror && textarea) mirror.value = textarea.value;
+  }
+
+  function wrapSelection(prefix, suffix) {
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end   = textarea.selectionEnd;
+    const text  = textarea.value;
+    const selected = text.substring(start, end);
+    const newText = text.substring(0, start) + prefix + selected + suffix + text.substring(end);
+    textarea.value = newText;
+    textarea.selectionStart = start + prefix.length;
+    textarea.selectionEnd   = end   + prefix.length;
+    textarea.focus();
+    updateCounters();
+  }
+
+  function insertSectionHeader() {
+    if (!textarea) return;
+    const pos   = textarea.selectionStart;
+    const text  = textarea.value;
+    const section = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━\nSECTION TITLE\n━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+    textarea.value = text.substring(0, pos) + section + text.substring(pos);
+    textarea.selectionStart = textarea.selectionEnd = pos + section.indexOf('SECTION TITLE');
+    textarea.focus();
+    updateCounters();
+  }
+
+  function clearEditor() {
+    if (!textarea) return;
+    if (confirm('Clear all editor content?')) {
+      textarea.value = '';
+      updateCounters();
+    }
+  }
+
+  // Loading state
+  document.getElementById('editor-upload-form')?.addEventListener('submit', function() {
+    const btn = document.getElementById('upload-btn');
+    if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Extracting...'; btn.disabled = true; }
+  });
+</script>
+{% endblock %}

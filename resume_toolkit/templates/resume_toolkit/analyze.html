@@ -1,0 +1,271 @@
+{% extends "resume_toolkit/base.html" %}
+{% block title %}Resume Analysis{% endblock %}
+{% block meta_desc %}Analyze your resume structure, sections, contact info and get an overall quality score.{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+
+  <!-- Page header -->
+  <div class="text-center mb-10">
+    <div class="inline-flex items-center gap-2 px-3 py-1 glass rounded-full text-xs text-indigo-300 mb-4">
+      <i class="fas fa-chart-bar text-indigo-400"></i> Resume Analysis
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-3">Analyze Your Resume</h1>
+    <p class="text-slate-400 max-w-xl mx-auto text-sm leading-relaxed">
+      Upload your resume to get a detailed quality report — sections detected, contact completeness, readability, and actionable suggestions.
+    </p>
+  </div>
+
+  {% if error %}
+  <div class="glass rounded-xl p-4 mb-8 border border-red-500/30 bg-red-500/5 flex items-start gap-3">
+    <i class="fas fa-exclamation-circle text-red-400 mt-0.5"></i>
+    <div>
+      <p class="text-red-300 font-medium text-sm">Something went wrong</p>
+      <p class="text-red-400/80 text-xs mt-1">{{ error }}</p>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if not analysis %}
+  <!-- Upload form -->
+  <div class="max-w-xl mx-auto">
+    <form method="post" enctype="multipart/form-data" id="analyze-form">
+      {% csrf_token %}
+      <div class="glass rounded-2xl p-8">
+        <div id="upload-zone" class="upload-zone rounded-xl p-10 text-center mb-6">
+          <div data-file-label>
+            <i class="fas fa-cloud-upload-alt text-indigo-400 text-4xl mb-3"></i>
+            <p class="text-white font-medium mb-1">Drop your resume here</p>
+            <p class="text-slate-400 text-sm">or click to browse</p>
+            <p class="text-slate-500 text-xs mt-3">Supports PDF &amp; DOCX &bull; Max 10 MB</p>
+          </div>
+          <input type="file" id="resume-input" name="resume" accept=".pdf,.docx" class="hidden" />
+        </div>
+        <button type="submit"
+                class="btn-primary w-full py-3 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2"
+                id="analyze-btn">
+          <i class="fas fa-search"></i> Analyze Resume
+        </button>
+      </div>
+    </form>
+  </div>
+
+  {% else %}
+  <!-- ══ RESULTS ══════════════════════════════════════════════════════════ -->
+  <div class="animate-slide-up">
+
+    <!-- Top bar: filename + re-analyze -->
+    <div class="flex items-center justify-between mb-8 glass rounded-xl px-5 py-3">
+      <div class="flex items-center gap-3">
+        <i class="fas fa-file-alt text-indigo-400"></i>
+        <span class="text-white text-sm font-medium">{{ filename }}</span>
+      </div>
+      <a href="{% url 'resume_toolkit:analyze' %}" class="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors">
+        <i class="fas fa-redo"></i> Analyze another
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- ── Left: Big score + sub-scores ── -->
+      <div class="lg:col-span-1 flex flex-col gap-5">
+
+        <!-- Overall score ring -->
+        <div class="glass rounded-2xl p-7 text-center">
+          <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-5">Overall Score</h2>
+          <div class="relative inline-flex items-center justify-center">
+            <svg width="160" height="160" viewBox="0 0 160 160">
+              <circle class="score-ring-track" cx="80" cy="80" r="70" stroke-width="10" fill="none"/>
+              <circle class="score-ring-fill"
+                      cx="80" cy="80" r="70"
+                      stroke-width="10" fill="none"
+                      stroke="{{ analysis.grade_color }}"
+                      stroke-dasharray="440"
+                      stroke-dashoffset="{{ 440|add:'-'|add:analysis.total_score|floatformat:0 }}"
+                      id="score-circle"/>
+            </svg>
+            <div class="absolute text-center">
+              <div class="text-4xl font-extrabold text-white" id="score-display">{{ analysis.total_score }}</div>
+              <div class="text-xs text-slate-400">/ 100</div>
+            </div>
+          </div>
+          <div class="mt-4">
+            <span class="text-2xl font-bold" style="color: {{ analysis.grade_color }}">Grade: {{ analysis.grade }}</span>
+          </div>
+        </div>
+
+        <!-- Sub-score breakdown -->
+        <div class="glass rounded-2xl p-6">
+          <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-5">Score Breakdown</h3>
+          <div class="flex flex-col gap-4">
+            {% with scores=analysis %}
+            <div>
+              <div class="flex justify-between text-xs mb-1.5">
+                <span class="text-slate-300">Sections</span>
+                <span class="text-indigo-300">{{ scores.section_score }}/35</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width: {{ scores.section_score|floatformat:0 }}%; background: linear-gradient(90deg, #6366f1, #818cf8);"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1.5">
+                <span class="text-slate-300">Contact Info</span>
+                <span class="text-indigo-300">{{ scores.contact_score }}/15</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width: {{ scores.contact_score|floatformat:0 }}%;"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1.5">
+                <span class="text-slate-300">Word Count</span>
+                <span class="text-indigo-300">{{ scores.word_score }}/20</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width: {{ scores.word_score|floatformat:0 }}%;"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1.5">
+                <span class="text-slate-300">Bullet Points</span>
+                <span class="text-indigo-300">{{ scores.bullet_score }}/15</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width: {{ scores.bullet_score|floatformat:0 }}%;"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1.5">
+                <span class="text-slate-300">Impact Language</span>
+                <span class="text-indigo-300">{{ scores.impact_score }}/15</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width: {{ scores.impact_score|floatformat:0 }}%;"></div></div>
+            </div>
+            {% endwith %}
+          </div>
+        </div>
+
+        <!-- Metrics -->
+        <div class="glass rounded-2xl p-6">
+          <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Metrics</h3>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-white/5 rounded-xl p-3 text-center">
+              <div class="text-xl font-bold text-white">{{ analysis.word_count }}</div>
+              <div class="text-xs text-slate-400">Words</div>
+            </div>
+            <div class="bg-white/5 rounded-xl p-3 text-center">
+              <div class="text-xl font-bold text-white">{{ analysis.bullet_count }}</div>
+              <div class="text-xs text-slate-400">Bullets</div>
+            </div>
+            <div class="bg-white/5 rounded-xl p-3 text-center">
+              <div class="text-xl font-bold text-white">{{ analysis.impact_count }}</div>
+              <div class="text-xs text-slate-400">Impact Lines</div>
+            </div>
+            <div class="bg-white/5 rounded-xl p-3 text-center">
+              <div class="text-xl font-bold text-white">{{ analysis.quantified }}</div>
+              <div class="text-xs text-slate-400">Quantified</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Right: Sections + Contact + Suggestions ── -->
+      <div class="lg:col-span-2 flex flex-col gap-5">
+
+        <!-- Sections detected -->
+        <div class="glass rounded-2xl p-6">
+          <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-5">Sections Detected</h3>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {% for section, found in analysis.sections_found.items %}
+            <div class="flex items-center gap-2 px-3 py-2 rounded-lg {% if found %}section-badge-found{% else %}section-badge-missing{% endif %}">
+              <i class="fas {% if found %}fa-check-circle{% else %}fa-times-circle{% endif %} text-xs"></i>
+              <span class="text-xs font-medium capitalize">{{ section }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Contact info -->
+        <div class="glass rounded-2xl p-6">
+          <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-5">Contact Information</h3>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {% for ctype, found in analysis.contact_found.items %}
+            <div class="flex items-center gap-2 px-3 py-2 rounded-lg {% if found %}section-badge-found{% else %}section-badge-missing{% endif %}">
+              <i class="fas {% if found %}fa-check-circle{% else %}fa-times-circle{% endif %} text-xs"></i>
+              <span class="text-xs font-medium capitalize">{{ ctype }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Suggestions -->
+        <div class="glass rounded-2xl p-6">
+          <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-5">
+            💡 Improvement Suggestions
+          </h3>
+          <ul class="flex flex-col gap-3">
+            {% for tip in analysis.suggestions %}
+            <li class="flex items-start gap-3 bg-white/5 rounded-xl px-4 py-3">
+              <span class="text-xl">{{ tip.icon }}</span>
+              <span class="text-slate-300 text-sm leading-relaxed">{{ tip.text }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="flex flex-wrap gap-3">
+          <a href="{% url 'resume_toolkit:ats_score' %}"
+             class="flex-1 btn-primary py-3 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2">
+            <i class="fas fa-bullseye"></i> Check ATS Score
+          </a>
+          <a href="{% url 'resume_toolkit:editor' %}"
+             class="flex-1 py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 glass border border-indigo-500/30 text-indigo-300 hover:border-indigo-400 transition-colors">
+            <i class="fas fa-edit"></i> Edit Resume
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  initDropZone('upload-zone', 'resume-input');
+
+  // Animate score circle on load
+  window.addEventListener('load', function() {
+    const circle = document.getElementById('score-circle');
+    if (!circle) return;
+    const score = parseInt('{{ analysis.total_score|default:0 }}');
+    const circumference = 440;
+    const offset = circumference - (score / 100) * circumference;
+    circle.style.strokeDashoffset = circumference; // start full
+    setTimeout(() => {
+      circle.style.transition = 'stroke-dashoffset 1.4s cubic-bezier(0.4,0,0.2,1)';
+      circle.style.strokeDashoffset = offset;
+    }, 200);
+
+    // Animate score number counter
+    const display = document.getElementById('score-display');
+    if (display) {
+      let current = 0;
+      const target = score;
+      const duration = 1400;
+      const step = Math.ceil(target / (duration / 16));
+      const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        display.textContent = current;
+        if (current >= target) clearInterval(timer);
+      }, 16);
+    }
+  });
+
+  // Loading state on submit
+  document.getElementById('analyze-form')?.addEventListener('submit', function() {
+    const btn = document.getElementById('analyze-btn');
+    if (btn) {
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+      btn.disabled = true;
+    }
+  });
+</script>
+{% endblock %}
